@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F2EAD9">
+  <title>Members — Ɛdan</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@400;500&family=Space+Mono&display=swap">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/pages/members.css">
+</head>
+<body class="page-members">
+  <header class="site-nav" id="siteNav">
+    <a href="/" class="nav-logo">
+      <span>Ɛdan</span>
+    </a>
+
+    <button
+      class="nav-toggle"
+      id="navToggle"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="navLinks"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav-links" id="navLinks" aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/labs/">Labs</a>
+      <a href="/gather/">Gather</a>
+      <a href="/stay/">Stay</a>
+      <a href="/eat/">Eat</a>
+      <a href="/grow/">Grow</a>
+      <a href="/about/">Who we are</a>
+      <a href="/contact/">Contact</a>
+    </nav>
+
+    <p class="nav-note" aria-hidden="true">
+      A space for<br>people &amp; ideas
+    </p>
+  </header>
+
+  <main class="members">
+
+    <!-- HERO: editorial cover -->
+    <section class="members__hero">
+      <img
+        class="members__hero-image"
+        src="/images/breeze-block-hero.jpg"
+        alt="Sunlit breeze-block wall with a shaded garden behind it"
+      >
+      <div class="members__hero-copy">
+        <span class="members__eyebrow">Members</span>
+        <h1 id="heroHeading">Welcome to <em>Ɛdan.</em></h1>
+        <p class="members__hero-tier" id="heroTier" hidden></p>
+      </div>
+    </section>
+
+    <!-- WELCOME + MEMBERSHIP OVERVIEW -->
+    <section class="members__membership" id="your-membership" aria-labelledby="membershipTitle">
+      <div class="members__intro">
+        <span class="members__eyebrow">Your place at Ɛdan</span>
+        <h2 id="memberGreeting">Welcome to <em>Ɛdan.</em></h2>
+        <p id="memberIntro">Checking your membership…</p>
+      </div>
+
+      <div class="members__ledger">
+        <h2 class="members__section-title" id="membershipTitle">Your membership</h2>
+
+        <dl class="members__facts">
+          <div>
+            <dt>Tier</dt>
+            <dd id="memberTier">Loading tier</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd id="memberStatus">Checking status</dd>
+          </div>
+          <div>
+            <dt>Expires</dt>
+            <dd id="memberExpiry">—</dd>
+          </div>
+        </dl>
+
+        <div class="members__ledger-actions">
+          <a class="members__text-link" href="/account/">Manage membership <span aria-hidden="true">↗</span></a>
+          <button class="members__text-button" id="memberLogout" type="button">Log out</button>
+        </div>
+
+        <div class="members__benefits" id="benefitList" aria-label="Your benefits">
+          <p class="members__eyebrow">Your benefits</p>
+          <ol>
+            <li>Community chat</li>
+            <li>Behind-the-scenes content</li>
+            <li>Monthly social invitations</li>
+            <li>10% off Small Moments and Ɛdan residencies</li>
+            <li class="members__benefit--annual">Bonus videos</li>
+            <li class="members__benefit--annual">One-to-one appointments</li>
+          </ol>
+          <p class="members__fine-print">Contact Ɛdan to confirm eligibility and how to redeem your discount.</p>
+        </div>
+
+        <div class="members__receipt" id="receiptPanel" hidden>
+          <span class="members__eyebrow">Payment receipt</span>
+          <button class="members__text-button" id="downloadReceipt" type="button">
+            Download receipt (PDF) <span aria-hidden="true">↗</span>
+          </button>
+          <p class="members__receipt-note" id="receiptMessage" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHORTCUTS: typographic index -->
+    <nav class="members__index members__gated" aria-label="Member sections">
+      <p class="members__eyebrow">Around Ɛdan</p>
+      <ol>
+        <li><a href="#community"><span class="members__index-num">01</span><span class="members__index-name">Community</span><span class="members__index-note">Talk with the members</span></a></li>
+        <li><a href="#in-process"><span class="members__index-num">02</span><span class="members__index-name">In Process</span><span class="members__index-note">Work in progress</span></a></li>
+        <li><a href="#gather"><span class="members__index-num">03</span><span class="members__index-name">Gather</span><span class="members__index-note">Gatherings and events</span></a></li>
+        <li><a href="#research"><span class="members__index-num">04</span><span class="members__index-name">Research</span><span class="members__index-note">Notes and publications</span></a></li>
+        <li class="members__benefit--annual"><a href="#bonus-videos"><span class="members__index-num">05</span><span class="members__index-name">Bonus content</span><span class="members__index-note">Annual members</span></a></li>
+        <li class="members__benefit--annual"><a href="#appointments"><span class="members__index-num">06</span><span class="members__index-name">Appointments</span><span class="members__index-note">Annual members</span></a></li>
+      </ol>
+    </nav>
+
+    <!-- COMMUNITY -->
+    <section class="members__block members__gated members__block--community" id="community" aria-labelledby="communityTitle">
+      <div class="members__block-head">
+        <span class="members__eyebrow">01 / Community</span>
+        <h2 id="communityTitle">The conversation<br>starts here.</h2>
+        <p>A shared table for the people who make Ɛdan what it is.</p>
+      </div>
+
+      <section
+        class="members__chat-panel"
+        id="communityChatPanel"
+        aria-label="Ɛdan community chat"
+        hidden
+      >
+        <header class="members__chat-header">
+          <span class="members__chat-status-dot" aria-hidden="true"></span>
+          <div>
+            <h3>The Ɛdan table</h3>
+            <p>Share, ask and connect.</p>
+          </div>
+        </header>
+
+        <div
+          class="members__chat-messages"
+          id="chatMessages"
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-label="Community messages"
+        >
+          <p class="members__chat-loading" id="chatLoading">
+            Making room at the table…
+          </p>
+        </div>
+
+        <p class="members__chat-notice" id="chatNotice" role="status"></p>
+
+        <div class="members__chat-identity" id="chatIdentity" hidden>
+          <p class="members__chat-kicker">Before you join in</p>
+          <h4>What should we call you?</h4>
+          <p>Choose a username for your messages. You can change it later.</p>
+
+          <form id="chatUsernameForm" class="members__chat-username-form">
+            <label for="chatUsername">Your username</label>
+            <input
+              id="chatUsername"
+              name="username"
+              type="text"
+              minlength="3"
+              maxlength="24"
+              pattern="[A-Za-z0-9_]+"
+              autocomplete="nickname"
+              placeholder="e.g. gardenfriend"
+              required
+            >
+            <small>3–24 characters. Letters, numbers and underscores.</small>
+            <button type="submit" id="saveChatUsername">
+              Save username <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="members__chat-composer" id="chatComposer" hidden>
+          <div class="members__chat-composer-top">
+            <span id="chatCurrentUsername"></span>
+            <button type="button" id="changeChatUsername">
+              Change username
+            </button>
+          </div>
+
+          <form id="chatMessageForm" class="members__chat-form">
+            <button
+              class="members__chat-emoji"
+              id="chatEmoji"
+              type="button"
+              aria-label="Add an emoji"
+              title="Add an emoji"
+            >☺</button>
+
+            <textarea
+              id="chatMessageInput"
+              name="message"
+              rows="1"
+              maxlength="1000"
+              placeholder="Share something with the table…"
+              aria-label="Write a message"
+              required
+            ></textarea>
+
+            <button
+              class="members__chat-send"
+              id="chatSendButton"
+              type="submit"
+              aria-label="Send message"
+            >↗</button>
+          </form>
+
+          <p class="members__chat-footnote">Be kind. Leave room for everyone.</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- IN PROCESS -->
+    <section class="members__block members__gated members__block--process" id="in-process" aria-labelledby="processTitle">
+      <div class="members__block-head">
+        <span class="members__eyebrow">02 / In Process</span>
+        <h2 id="processTitle">From behind<br>the scenes.</h2>
+        <p>Works in progress, studio notes and research activity will be shared here as they happen.</p>
+      </div>
+      <div class="members__process-list" id="processList" aria-live="polite">
+        <p class="members__empty" id="processEmpty">No work in progress has been shared yet.</p>
+      </div>
+    </section>
+
+    <!-- GATHER -->
+    <section class="members__block members__gated members__block--gather" id="gather" aria-labelledby="gatherTitle">
+      <div class="members__block-head">
+        <span class="members__eyebrow">03 / Gather</span>
+        <h2 id="gatherTitle">See you<br>around the table.</h2>
+        <p>Socials, workshops and member gatherings, in one place.</p>
+      </div>
+      <div class="members__gatherings" id="gatheringList" aria-live="polite">
+        <p class="members__empty" id="gatheringEmpty">No gatherings have been published yet.</p>
+      </div>
+      <a class="members__text-link members__view-all" href="/gather/">View all events <span aria-hidden="true">↗</span></a>
+    </section>
+
+    <!-- RESEARCH -->
+    <section class="members__block members__gated members__block--research" id="research" aria-labelledby="researchTitle">
+      <div class="members__block-head">
+        <span class="members__eyebrow">04 / Research</span>
+        <h2 id="researchTitle">Notes from<br>the studio.</h2>
+        <p>Ideas, knowledge and creative research from Ɛdan, shared with members.</p>
+      </div>
+      <div class="members__research-list" id="researchList" aria-live="polite">
+        <p class="members__empty" id="researchEmpty">No research has been published yet.</p>
+      </div>
+    </section>
+
+    <!-- ANNUAL: BONUS VIDEOS -->
+    <section class="members__block members__gated members__block--annual members__block--videos" id="bonus-videos" aria-labelledby="videosTitle">
+      <div class="members__block-head">
+        <span class="members__eyebrow">05 / Annual members</span>
+        <h2 id="videosTitle">More to<br>discover.</h2>
+        <p>Bonus videos, made for annual members.</p>
+      </div>
+      <div class="members__locked" data-annual-lock hidden>
+        <span class="members__locked-frame" aria-hidden="true">Annual</span>
+        <p>Bonus videos are part of the annual membership. Your monthly membership includes everything else on this page.</p>
+      </div>
+      <div data-annual-content>
+        <div class="members__videos" id="bonusVideoList" aria-live="polite">
+          <p class="members__empty" id="bonusVideoEmpty">No bonus videos have been published yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANNUAL: APPOINTMENTS -->
+    <section class="members__block members__gated members__block--annual members__block--appointments" id="appointments" aria-labelledby="appointmentsTitle">
+      <figure class="members__appointment-figure">
+        <img src="/images/door-window.jpg" alt="A timber door beside a window with leaves outside" loading="lazy">
+      </figure>
+      <div class="members__appointment-copy">
+        <span class="members__eyebrow">06 / Annual members</span>
+        <h2 id="appointmentsTitle">Make a little<br>time.</h2>
+        <p class="members__locked-text" data-annual-lock hidden>
+          One-to-one appointments are part of the annual membership.
+        </p>
+        <div data-annual-content>
+          <p>Ask for a one-to-one appointment and the Ɛdan team will be in touch to arrange a time.</p>
+          <a class="members__text-link" href="/contact/">Request an appointment <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="members__final">
+      <img src="/images/house-two-storey.jpg" alt="The two-storey house at Ɛdan in the afternoon" loading="lazy">
+      <div class="members__final-copy">
+        <h2>A place to belong,<br><em>a space to grow.</em></h2>
+        <a class="members__text-link" href="/account/">Manage your membership <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <dialog class="members__reader" id="researchReader" aria-labelledby="readerTitle">
+      <div class="members__reader-inner">
+        <header class="members__reader-head">
+          <span class="members__research-category" id="readerCategory"></span>
+          <button class="members__reader-close" id="readerClose" type="button" aria-label="Close reader">×</button>
+        </header>
+        <h2 id="readerTitle"></h2>
+        <div class="members__reader-body" id="readerBody"></div>
+      </div>
+    </dialog>
+
+    <p class="members__message" id="membersMessage" role="status" aria-live="polite"></p>
+  </main>
+
+  <div data-include="/partials/nav-footer.html"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/members.js"></script>
+  <script src="/js/members-chat.js"></script>
+  <script src="/js/members-content.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/include.js"></script>
+
+</body>
+</html>
