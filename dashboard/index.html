@@ -58,7 +58,7 @@
           <div class="admin__table-wrap">
             <table class="admin__table">
               <thead>
-                <tr><th scope="col">Email</th><th scope="col">Applied</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+                <tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Tier</th><th scope="col">Practice</th><th scope="col">Based in</th><th scope="col">Applied</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
               </thead>
               <tbody id="applicationsBody"></tbody>
             </table>
@@ -227,7 +227,8 @@
         <form id="reviewForm" class="admin__review">
           <span class="eyebrow">membership application</span>
           <h2 id="reviewHeading">Review application</h2>
-          <p class="admin__hint">Applicant: <strong id="reviewEmail"></strong></p>
+
+          <dl class="admin__details" id="reviewDetails"></dl>
 
           <label class="admin__label" for="reviewTier">Membership type</label>
           <select id="reviewTier" class="admin__file" required>
