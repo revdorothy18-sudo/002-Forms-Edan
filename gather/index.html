@@ -407,6 +407,18 @@
       </label>
     </fieldset>
 
+    <fieldset class="pay__plans">
+      <legend>Membership options</legend>
+      <label class="pay__plan">
+        <input type="radio" name="plan" value="monthly" required>
+        <span><strong>Monthly</strong> GH₵ 1000 / month</span>
+      </label>
+      <label class="pay__plan">
+        <input type="radio" name="plan" value="annual">
+        <span><strong>Annual</strong> GH₵ 8000 / year</span>
+      </label>
+    </fieldset>
+
     <label>
       Tell us about your work
       <textarea name="aboutWork" rows="4" maxlength="1000" required></textarea>
@@ -425,32 +437,25 @@
   </form>
 </dialog>
 
-<dialog class="pay" id="planDialog" aria-labelledby="planTitle">
-  <form class="pay__form" id="planForm" novalidate>
-    <div class="pay__head">
-      <h2 id="planTitle">Choose your membership.</h2>
-      <button class="pay__close" type="button" id="planClose" aria-label="Close">&times;</button>
-    </div>
+<dialog class="pay pay--review" id="reviewDialog" aria-labelledby="reviewTitle">
+  <div class="pay__head">
+    <h2 id="reviewTitle">Your application is under review</h2>
+    <button class="pay__close" type="button" id="reviewClose" aria-label="Close">&times;</button>
+  </div>
 
-    <fieldset class="pay__plans">
-      <legend>Membership options</legend>
-      <label class="pay__plan">
-        <input type="radio" name="plan" value="monthly" checked>
-        <span><strong>Monthly</strong> GH₵ 1000 / month</span>
-      </label>
-      <label class="pay__plan">
-        <input type="radio" name="plan" value="annual">
-        <span><strong>Annual</strong> GH₵ 8000 / year</span>
-      </label>
-    </fieldset>
+  <p class="pay__review-lede">
+    Thank you. We've received your membership interest form. The Ɛdan team will
+    review your application and get back to you. You'll be able to pay once your
+    application is approved.
+  </p>
 
-    <p class="pay__message" id="planMessage" role="status" aria-live="polite" hidden></p>
+  <h3 class="pay__review-subhead">Application details</h3>
+  <dl class="pay__review-list" id="reviewDetails"></dl>
 
-    <button class="pay__submit" type="submit" id="planSubmit">
-      Continue to payment <span aria-hidden="true">↗</span>
-    </button>
-    <p class="pay__secure">Payments are processed securely by Paystack.</p>
-  </form>
+  <div class="pay__review-actions">
+    <button class="pay__submit" type="button" id="reviewDone">Done</button>
+    <a class="pay__review-link" href="/members/">Go to your member space</a>
+  </div>
 </dialog>
 
 <!-- ============ FOOTER ============ -->

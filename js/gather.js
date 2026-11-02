@@ -1,10 +1,22 @@
 import { supabase } from "./supabase-client.js";
 
-const PAYSTACK_PUBLIC_KEY = "pk_test_41f2f237f5c3ece88a2e4873079e1bb0ceb70ed4";
 const ACCOUNT_PATH = "/login/";
 const PLANS = {
   monthly: { label: "Monthly affiliate", amountGhs: 1000 },
   annual: { label: "Annual affiliate", amountGhs: 8000 },
+};
+const PRACTICE_LABELS = {
+  researcher: "Researcher",
+  creative: "Creative",
+  spatial_practitioner: "Spatial practitioner",
+  collective: "Collective",
+  student: "Student",
+  partner_institution: "Partner institution",
+  other: "Other",
+};
+const BASED_LABELS = {
+  accra: "Accra",
+  passing_through: "Passing through",
 };
 
 const interestDialog = document.getElementById("interestDialog");
@@ -13,11 +25,10 @@ const interestMessage = document.getElementById("interestMessage");
 const interestSubmit = document.getElementById("interestSubmit");
 const interestClose = document.getElementById("interestClose");
 
-const planDialog = document.getElementById("planDialog");
-const planForm = document.getElementById("planForm");
-const planMessage = document.getElementById("planMessage");
-const planSubmit = document.getElementById("planSubmit");
-const planClose = document.getElementById("planClose");
+const reviewDialog = document.getElementById("reviewDialog");
+const reviewDetails = document.getElementById("reviewDetails");
+const reviewClose = document.getElementById("reviewClose");
+const reviewDone = document.getElementById("reviewDone");
 
 const statusLine = document.getElementById("payStatus");
 
@@ -46,52 +57,42 @@ async function currentSession() {
   return data.session;
 }
 
+function addReviewRow(label, value) {
+  const term = document.createElement("dt");
+  term.textContent = label;
+  const detail = document.createElement("dd");
+  detail.textContent = value;
+  reviewDetails.append(term, detail);
+}
+
+function showApplicationReview(form) {
+  const fields = form.elements;
+  const plan = fields.plan.value;
+  reviewDetails.replaceChildren();
+
+  addReviewRow("Full name", fields.fullName.value.trim());
+  addReviewRow("Email", fields.email.value);
+  addReviewRow("Phone", fields.phone.value.trim());
+  addReviewRow("What best describes you", PRACTICE_LABELS[fields.practiceType.value] ?? fields.practiceType.value);
+  addReviewRow("Based in", BASED_LABELS[fields.basedIn.value] ?? fields.basedIn.value);
+  addReviewRow("Membership", `${PLANS[plan]?.label ?? plan} — GH₵ ${PLANS[plan]?.amountGhs ?? ""}`);
+  addReviewRow("Status", "Under review");
+  addReviewRow("About your work", fields.aboutWork.value.trim());
+
+  interestDialog.close();
+  statusLine.hidden = true;
+  reviewDialog.showModal();
+}
+
 function openInterestForm(session, plan) {
   interestForm.reset();
   interestDialog.dataset.plan = plan;
+  if (plan) interestForm.elements.plan.value = plan;
   interestForm.elements.fullName.value = session.user.user_metadata?.full_name || "";
   interestForm.elements.email.value = session.user.email || "";
   setMessage(interestMessage, "");
   statusLine.hidden = true;
   interestDialog.showModal();
-}
-
-function openPlanChoice(plan) {
-  planForm.elements.plan.value = plan;
-  setMessage(planMessage, "");
-  planDialog.showModal();
-}
-
-function startPaystack({ email, fullName, phone, plan, userId, reference, amount }) {
-  const handler = window.PaystackPop.setup({
-    key: PAYSTACK_PUBLIC_KEY,
-    email,
-    amount,
-    currency: "GHS",
-    channels: ["card", "mobile_money"],
-    ref: reference,
-    metadata: {
-      user_id: userId,
-      plan,
-      custom_fields: [
-        { display_name: "Full name", variable_name: "full_name", value: fullName },
-        { display_name: "Phone", variable_name: "phone", value: phone },
-      ],
-    },
-    callback: () => {
-      setStatus(
-        "Payment submitted. We're verifying it now; your membership will be confirmed after verification."
-      );
-    },
-    onClose: () => {
-      setStatus(
-        "Payment was not completed. Your application is saved, and you can try paying again from the membership section.",
-        "error"
-      );
-    },
-  });
-
-  handler.openIframe();
 }
 
 async function handleInterestSubmit(event) {
@@ -117,6 +118,7 @@ async function handleInterestSubmit(event) {
       p_based_in: fields.basedIn.value,
       p_about_work: fields.aboutWork.value.trim(),
       p_commitment_agreed: fields.commitment.checked,
+      p_membership_tier: fields.plan.value,
     });
 
     if (error) {
@@ -131,71 +133,9 @@ async function handleInterestSubmit(event) {
         if (emailError) console.error("Could not send the application emails:", emailError.message);
       });
 
-    interestDialog.close();
-    openPlanChoice(interestDialog.dataset.plan);
+    showApplicationReview(interestForm);
   } finally {
     interestSubmit.disabled = false;
-  }
-}
-
-async function handlePlanSubmit(event) {
-  event.preventDefault();
-  setMessage(planMessage, "");
-
-  if (!planForm.reportValidity()) return;
-
-  if (!PAYSTACK_PUBLIC_KEY.startsWith("pk_")) {
-    setMessage(planMessage, "Online payment isn't connected yet. Please try again later.");
-    return;
-  }
-
-  const session = await currentSession();
-  if (!session) {
-    window.location.assign(`${ACCOUNT_PATH}?plan=${planForm.elements.plan.value}`);
-    return;
-  }
-
-  const plan = planForm.elements.plan.value;
-  const fullName = interestForm.elements.fullName.value.trim();
-  const phone = interestForm.elements.phone.value.trim();
-
-  planSubmit.disabled = true;
-
-  try {
-    const { data, error } = await supabase.functions.invoke("create-payment", {
-      body: { plan },
-    });
-
-    if (error) {
-      console.error("Payment initialization failed:", error.message);
-      throw new Error("Could not initialize payment");
-    }
-
-    if (
-      !data?.reference ||
-      !Number.isInteger(data.amount) ||
-      data.amount <= 0 ||
-      data?.currency !== "GHS"
-    ) {
-      throw new Error("Invalid payment initialization response");
-    }
-
-    planDialog.close();
-
-    startPaystack({
-      email: data.email || session.user.email,
-      fullName,
-      phone,
-      plan,
-      userId: session.user.id,
-      reference: data.reference,
-      amount: data.amount,
-    });
-  } catch (error) {
-    console.error("Could not start the membership payment:", error);
-    setMessage(planMessage, "We couldn't start your payment. Please try again.");
-  } finally {
-    planSubmit.disabled = false;
   }
 }
 
@@ -218,9 +158,8 @@ document.querySelectorAll("[data-plan]").forEach((button) => {
 
 interestForm.addEventListener("submit", handleInterestSubmit);
 interestClose.addEventListener("click", () => interestDialog.close());
-
-planForm.addEventListener("submit", handlePlanSubmit);
-planClose.addEventListener("click", () => planDialog.close());
+reviewClose.addEventListener("click", () => reviewDialog.close());
+reviewDone.addEventListener("click", () => reviewDialog.close());
 
 async function openRequestedPlan() {
   const plan = requestedPlan();

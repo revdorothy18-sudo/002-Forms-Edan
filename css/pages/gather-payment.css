@@ -202,3 +202,72 @@
   background: #fbe3dc;
   color: #7a2a1a;
 }
+
+/* ---- Application review popup ---- */
+.pay--review {
+  width: min(92vw, 560px);
+}
+
+.pay--review .pay__review-lede {
+  margin: 0 0 1.25rem;
+  color: #51473d;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.pay__review-subhead {
+  margin: 0 0 0.5rem;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #766b5e;
+}
+
+.pay__review-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 1rem 0;
+  border-top: 1px solid #e8dcc6;
+  border-bottom: 1px solid #e8dcc6;
+}
+
+.pay__review-list dt {
+  color: #766b5e;
+  font-size: 0.85rem;
+}
+
+.pay__review-list dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.pay__review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.pay__review-link {
+  font-size: 0.9rem;
+  color: #302820;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .pay__review-list {
+    gap: 0.4rem;
+  }
+
+  .pay__review-list dt,
+  .pay__review-list dd {
+    text-align: left;
+  }
+}
