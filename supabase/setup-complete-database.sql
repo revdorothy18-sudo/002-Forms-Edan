@@ -1247,7 +1247,8 @@ CREATE OR REPLACE FUNCTION submit_membership_interest(
   p_practice_type text,
   p_based_in text,
   p_about_work text,
-  p_commitment_agreed boolean
+  p_commitment_agreed boolean,
+  p_membership_tier text
 )
 RETURNS uuid
 LANGUAGE plpgsql
@@ -1287,6 +1288,10 @@ BEGIN
     RAISE EXCEPTION 'Please agree to the shared commitment to a fairer city';
   END IF;
 
+  IF p_membership_tier IS NULL OR p_membership_tier NOT IN ('monthly', 'annual') THEN
+    RAISE EXCEPTION 'Choose a membership option';
+  END IF;
+
   IF v_email IS NULL THEN
     RAISE EXCEPTION 'Your account has no email address';
   END IF;
@@ -1301,11 +1306,11 @@ BEGIN
   IF v_id IS NULL THEN
     INSERT INTO membership_applications (
       user_id, applicant_email, status, full_name, phone, practice_type,
-      based_in, about_work, commitment_agreed, submitted_at
+      based_in, about_work, commitment_agreed, submitted_at, membership_tier
     )
     VALUES (
       v_user, v_email, 'pending', btrim(p_full_name), btrim(p_phone), p_practice_type,
-      p_based_in, btrim(p_about_work), true, now()
+      p_based_in, btrim(p_about_work), true, now(), p_membership_tier
     )
     RETURNING id INTO v_id;
   ELSE
@@ -1316,7 +1321,8 @@ BEGIN
         based_in = p_based_in,
         about_work = btrim(p_about_work),
         commitment_agreed = true,
-        submitted_at = now()
+        submitted_at = now(),
+        membership_tier = p_membership_tier
     WHERE id = v_id;
   END IF;
 
@@ -1324,8 +1330,8 @@ BEGIN
 END;
 $;
 
-REVOKE EXECUTE ON FUNCTION submit_membership_interest(text, text, text, text, text, boolean) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION submit_membership_interest(text, text, text, text, text, boolean) TO authenticated;
+REVOKE EXECUTE ON FUNCTION submit_membership_interest(text, text, text, text, text, boolean, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION submit_membership_interest(text, text, text, text, text, boolean, text) TO authenticated;
 
 -- ===========================================================================
 -- 16. ADMIN DASHBOARD MEMBERSHIP STATS
@@ -1430,7 +1436,142 @@ TO authenticated
 USING (bucket_id = 'site-images' AND public.is_edan_admin());
 
 -- ===========================================================================
--- 18. SAMPLE ROOMS
+-- 18. MEMBER RESEARCH ITEMS (with body text and seed data)
+-- ===========================================================================
+
+CREATE TABLE IF NOT EXISTS member_research_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL CHECK (length(btrim(title)) BETWEEN 1 AND 160),
+  summary text NOT NULL DEFAULT '',
+  body text NOT NULL DEFAULT '',
+  category text NOT NULL DEFAULT '',
+  image_path text NOT NULL DEFAULT '',
+  read_more_url text NOT NULL DEFAULT '',
+  is_published boolean NOT NULL DEFAULT false,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE member_research_items ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON member_research_items TO authenticated;
+
+DROP POLICY IF EXISTS "members_select_published_research" ON member_research_items;
+CREATE POLICY "members_select_published_research" ON member_research_items FOR SELECT
+  TO authenticated USING (
+    (is_published AND is_active_member(ARRAY['monthly', 'annual'])) OR is_edan_admin()
+  );
+
+DROP POLICY IF EXISTS "admins_insert_research" ON member_research_items;
+CREATE POLICY "admins_insert_research" ON member_research_items FOR INSERT
+  TO authenticated WITH CHECK (is_edan_admin());
+
+DROP POLICY IF EXISTS "admins_update_research" ON member_research_items;
+CREATE POLICY "admins_update_research" ON member_research_items FOR UPDATE
+  TO authenticated USING (is_edan_admin()) WITH CHECK (is_edan_admin());
+
+DROP POLICY IF EXISTS "admins_delete_research" ON member_research_items;
+CREATE POLICY "admins_delete_research" ON member_research_items FOR DELETE
+  TO authenticated USING (is_edan_admin());
+
+INSERT INTO member_research_items (title, summary, body, category, image_path, is_published, sort_order)
+SELECT v.title, v.summary, v.body, v.category, v.image_path, true, v.sort_order
+FROM (VALUES
+  ('Sample: Notes on breeze-block light',
+   'A sample research note on how perforated walls shape light and airflow across a day.',
+   'Breeze blocks are perforated walls, a familiar feature of hot-climate buildings. They let air move through a space while filtering strong sun, so a room can stay open without becoming glaring.
+
+Over a day, the pattern a breeze block casts shifts across the floor and walls. Watching these shadows is a simple way to understand how light and ventilation work together, and it is a useful starting point for thinking about how a building should respond to its site.
+
+This note is a sample. It shows the kind of short research text that will appear in this section.',
+   'Research note', '/images/breeze-block-detail.webp', 1),
+  ('Sample: Dye pits and the colour of process',
+   'A sample creative insight on working with natural dyes, from preparation to the finished cloth.',
+   'Natural dyes ask for patience. The pits are prepared, the material is soaked and lifted, and the colour changes as it meets the air. What looks like one shade in the vat can settle into something quite different once it dries.
+
+Working this way means accepting that the process sets the outcome. Each batch teaches something about timing, water and the plants or minerals involved, and those lessons carry into the next piece of work.
+
+This note is a sample. Real insights from the studio will replace it.',
+   'Creative insight', '/images/dye-pits.jpg', 2),
+  ('Sample: Mapping Accra in lines',
+   'A sample project note on drawing the city as a set of routes, edges and shared spaces.',
+   'Drawing a city as lines shifts attention away from buildings and towards movement. Routes, edges and shared spaces become the main characters of the map, and the places where people gather start to stand out.
+
+This kind of mapping is a way of asking who a city is for. The lines we draw can show where access is easy, where it is broken, and where a neighbourhood already holds its own sense of community.
+
+This note is a sample. A full project publication will replace it once the work is ready to share.',
+   'Project publication', '/images/accra-map-lines.png', 3),
+  ('Sample: Plants that find the cracks',
+   'A sample research note on how planting and weathering interact along the edges of a building.',
+   'Cracks in a rendered wall are small thresholds. Seeds and roots find them first, and over several seasons they change how the wall holds moisture.
+
+Recording these changes is one way the studio tests materials against the conditions they actually face.',
+   'Research note', '/images/garden-plant.jpg', 4)
+) AS v(title, summary, body, category, image_path, sort_order)
+WHERE NOT EXISTS (SELECT 1 FROM member_research_items);
+
+-- ===========================================================================
+-- 19. MEMBER IN-PROCESS ITEMS (with seed data)
+-- ===========================================================================
+
+CREATE TABLE IF NOT EXISTS member_process_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL CHECK (length(btrim(title)) BETWEEN 1 AND 160),
+  summary text NOT NULL DEFAULT '',
+  body text NOT NULL DEFAULT '',
+  category text NOT NULL DEFAULT '',
+  image_path text NOT NULL DEFAULT '',
+  is_published boolean NOT NULL DEFAULT false,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE member_process_items ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON member_process_items TO authenticated;
+
+DROP POLICY IF EXISTS "members_select_published_process" ON member_process_items;
+CREATE POLICY "members_select_published_process" ON member_process_items FOR SELECT
+  TO authenticated USING (
+    (is_published AND is_active_member(ARRAY['monthly', 'annual'])) OR is_edan_admin()
+  );
+
+DROP POLICY IF EXISTS "admins_insert_process" ON member_process_items;
+CREATE POLICY "admins_insert_process" ON member_process_items FOR INSERT
+  TO authenticated WITH CHECK (is_edan_admin());
+
+DROP POLICY IF EXISTS "admins_update_process" ON member_process_items;
+CREATE POLICY "admins_update_process" ON member_process_items FOR UPDATE
+  TO authenticated USING (is_edan_admin()) WITH CHECK (is_edan_admin());
+
+DROP POLICY IF EXISTS "admins_delete_process" ON member_process_items;
+CREATE POLICY "admins_delete_process" ON member_process_items FOR DELETE
+  TO authenticated USING (is_edan_admin());
+
+INSERT INTO member_process_items (title, summary, body, category, image_path, is_published, sort_order)
+SELECT v.title, v.summary, v.body, v.category, v.image_path, true, v.sort_order
+FROM (VALUES
+  ('Sample: The studio table',
+   'A sample note on how the team gathers around one table to test ideas before they become drawings.',
+   'Sample text for review. Replace with a real studio note.
+
+The studio table is where most ideas first meet a second opinion. Sketches, half-written notes and material samples sit side by side, and a conversation usually decides what goes forward.
+
+This sample shows how a longer in-process note reads inside the members space.',
+   'Studio notes', '/images/sharing.webp', 1),
+  ('Sample: Notes on a wall that has weathered',
+   'A sample observation on plants and paint loss along an old wall, and what they reveal about materials over time.',
+   'Sample text for review. Replace with a real observation.
+
+Walls keep a record of the weather they have stood through. Where paint has lifted and a plant has found a crack, the surface tells us how water moves and where it settles.
+
+This sample shows how a research-style in-process note is presented.',
+   'Field notes', '/images/garden-plant.jpg', 2)
+) AS v(title, summary, body, category, image_path, sort_order)
+WHERE NOT EXISTS (SELECT 1 FROM member_process_items);
+
+-- ===========================================================================
+-- 20. SAMPLE ROOMS
 -- ===========================================================================
 -- These 5 rooms are needed for the Stay booking page to work.
 -- Safe to re-run (ON CONFLICT does nothing).
