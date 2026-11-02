@@ -1,0 +1,29 @@
+{
+  "projectId": "72588231",
+  "functions": {
+    "create-payment": {
+      "hasChanged": false,
+      "hash": "0cf1cf3d11566dfeac622226784f7926ceb9e74b9e46d0b57956b8c80bf37e94"
+    },
+    "payment-receipt": {
+      "hasChanged": false,
+      "hash": "189c760741578267feb160d8d95bd9fdd73c962f77e5196315a4d36d19a4027e"
+    },
+    "paystack-webhook": {
+      "hasChanged": false,
+      "hash": "2156103c85af544ea6c51c6438a494a061b6759373802d4cbbaf5677c16251ad"
+    },
+    "stay-payment": {
+      "hasChanged": false,
+      "hash": "0c809712bb23f80b49199f3919a1f6fb4d4ae255eb9fb2237a659dbf6a400c8a"
+    },
+    "stay-paystack-webhook": {
+      "hasChanged": false,
+      "hash": "eb0f50eaa39b9f38e1cbd57e5ca7a186c08f26d2415ce2c0990d7750218b42af"
+    },
+    "membership-submission-email": {
+      "hasChanged": false,
+      "hash": "1e55310c6d714e6438978cfe5bc0d59ac827d0b584f324bdb1cd2f7c6b13e400"
+    }
+  }
+}
